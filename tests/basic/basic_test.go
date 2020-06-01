@@ -15,6 +15,10 @@ import (
 	. "github.com/portworx/torpedo/tests"
 )
 
+const (
+	waitBetweenDriverStopStart = 5 * time.Minute
+)
+
 func TestBasic(t *testing.T) {
 	RegisterFailHandler(Fail)
 
@@ -76,8 +80,8 @@ var _ = Describe("{VolumeDriverDown}", func() {
 					})
 
 				Step(fmt.Sprintf("wait for %v minutes before starting volume driver",
-					Inst().ChaosLevel), func() {
-					time.Sleep(time.Duration(Inst().ChaosLevel) * time.Minute)
+					waitBetweenDriverStopStart), func() {
+					time.Sleep(waitBetweenDriverStopStart)
 				})
 
 				Step(
