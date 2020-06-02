@@ -1987,8 +1987,12 @@ func (k *K8s) DeleteVolumes(ctx *scheduler.Context, options *scheduler.VolumeOpt
 				logrus.Infof("[%v] Destroyed storage class: %v", ctx.App.Key, obj.Name)
 			}
 		} else if obj, ok := specObj.(*v1.PersistentVolumeClaim); ok {
+			pvcObj, err := k8sCore.GetPersistentVolumeClaim(obj.Name, obj.Namespace)
+			if err != nil {
+				return nil, err
+			}
 			vols = append(vols, &volume.Volume{
-				ID:        string(obj.UID),
+				ID:        string(pvcObj.Spec.VolumeName),
 				Name:      obj.Name,
 				Namespace: obj.Namespace,
 				Shared:    k.isPVCShared(obj),
@@ -2036,8 +2040,12 @@ func (k *K8s) DeleteVolumes(ctx *scheduler.Context, options *scheduler.VolumeOpt
 			}
 
 			for _, pvc := range pvcList.Items {
+				pvcObj, err := k8sCore.GetPersistentVolumeClaim(pvc.Name, pvc.Namespace)
+				if err != nil {
+					return nil, err
+				}
 				vols = append(vols, &volume.Volume{
-					ID:        string(pvc.UID),
+					ID:        string(pvcObj.Spec.VolumeName),
 					Name:      pvc.Name,
 					Namespace: pvc.Namespace,
 					Shared:    k.isPVCShared(&pvc),
